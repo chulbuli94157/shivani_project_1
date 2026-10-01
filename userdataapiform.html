@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>User Management</title>
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background-color: #f2f2f2;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 200px;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 25px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #ddd;
+        }
+
+        .delete {
+            background-color: red;
+            color: white;
+            border: none;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>User Management</h1>
+
+
+    <!-- FORM -->
+
+    <h2>Add User</h2>
+
+    <form id="userForm">
+
+        <input
+            type="text"
+            id="name"
+            placeholder="Enter Name"
+            required
+        >
+
+        <input
+            type="email"
+            id="email"
+            placeholder="Enter Email"
+            required
+        >
+        <label> City: </label>
+        <select id="city" required>
+            <option value="">Select City</option>
+            <option value="Lucknow">Lucknow</option>
+            <option value="Mumbai">Mumbai</option>
+            <option value="Delhi">Delhi</option>
+            <option value="Bangalore">Bangalore</option>
+            <option value="Chennai">Chennai</option>
+        </select>
+
+        <button type="submit">
+            Add User
+        </button>
+
+    </form>
+
+
+    <!-- SEARCH -->
+
+    <h2>Search User</h2>
+
+    <input
+        type="text"
+        id="search"
+        placeholder="Search by name"
+        onkeyup="searchUser()"
+    >
+
+
+    <!-- API BUTTON -->
+
+    <br>
+
+    <button onclick="loadAPIUsers()">
+        Load JSONPlaceholder Users
+    </button>
+
+
+    <!-- TABLE -->
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>City</th>
+                <th>Action</th>
+            </tr>
+
+        </thead>
+
+        <tbody id="userTable">
+
+        </tbody>
+
+    </table>
+
+</div>
+
+
+<script>
+
+    // ==================================
+    // EMPTY ARRAY
+    // ==================================
+
+    let users = [];
+
+
+    // ==================================
+    // FORM SUBMIT
+    // ==================================
+
+    document
+        .getElementById("userForm")
+        .addEventListener("submit", function(event) {
+
+            event.preventDefault();
+
+
+            // Form data lena
+
+            let name =
+                document.getElementById("name").value;
+
+            let email =
+                document.getElementById("email").value;
+
+            let city =
+                document.getElementById("city").value;
+
+
+            // New user object
+
+            let user = {
+
+                id: users.length + 1,
+
+                name: name,
+
+                email: email,
+
+                city: city
+
+            };
+
+
+            // Array me save
+
+            users.push(user);
+
+
+            // Table update
+
+            displayUsers(users);
+
+
+            // Form clear
+
+            document
+                .getElementById("userForm")
+                .reset();
+
+        });
+
+
+
+    // ==================================
+    // DISPLAY USERS
+    // ==================================
+
+    function displayUsers(data) {
+
+        let table =
+            document.getElementById("userTable");
+
+
+        table.innerHTML = "";
+
+
+        data.forEach(function(user) {
+
+            let row = `
+
+                <tr>
+
+                    <td>${user.id}</td>
+
+                    <td>${user.name}</td>
+
+                    <td>${user.email}</td>
+
+                    <td>${user.city}</td>
+
+                    <td>
+
+                        <button
+                            class="delete"
+                            onclick="deleteUser(${user.id})">
+
+                            Delete
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            table.innerHTML += row;
+
+        });
+
+    }
+
+
+
+    // ==================================
+    // DELETE USER
+    // ==================================
+
+    function deleteUser(id) {
+
+        users = users.filter(function(user) {
+
+            return user.id !== id;
+
+        });
+
+
+        displayUsers(users);
+
+    }
+
+
+
+    // ==================================
+    // SEARCH USER
+    // ==================================
+
+    function searchUser() {
+
+        let searchText =
+            document
+            .getElementById("search")
+            .value
+            .toLowerCase();
+
+
+        let result = users.filter(function(user) {
+
+            return user.name
+                .toLowerCase()
+                .includes(searchText);
+
+        });
+
+
+        displayUsers(result);
+
+    }
+
+
+
+    // ==================================
+    // JSONPLACEHOLDER API
+    // ==================================
+
+    function loadAPIUsers() {
+
+        fetch(
+            "https://jsonplaceholder.typicode.com/users"
+        )
+
+        .then(function(response) {
+
+            return response.json();
+
+        })
+
+        .then(function(data) {
+
+
+            // API data ko apne array me save
+
+            users = data.map(function(user) {
+
+                return {
+
+                    id: user.id,
+
+                    name: user.name,
+
+                    email: user.email,
+
+                    city: user.address.city
+
+                };
+
+            });
+
+
+            // Webpage par show
+
+            displayUsers(users);
+
+        })
+
+        .catch(function(error) {
+
+            console.log(
+                "Error:",
+                error
+            );
+
+        });
+
+    }
+
+</script>
+
+</body>
+</html>
+
